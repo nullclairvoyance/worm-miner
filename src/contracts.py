@@ -89,6 +89,17 @@ class BethContract:
             )
         return gas_price
     
+    def _get_optimal_gas(self) -> int:
+        """Get optimal gas price for Sepolia with priority buffer.
+        
+        Adds 20% buffer to current gas price to ensure TX gets mined quickly.
+        """
+        base_gas = self._check_gas_price()
+        # Add 20% priority buffer for testnets
+        optimal_gas = int(base_gas * 1.2)
+        self.logger.debug(f"Gas: base={base_gas/1e9:.2f} Gwei, optimal={optimal_gas/1e9:.2f} Gwei")
+        return optimal_gas
+    
     def send_burn_tx(
         self,
         wallet: WalletConfig,
@@ -135,7 +146,8 @@ class BethContract:
             
             # Sign and send
             signed_tx = self.w3.eth.account.sign_transaction(tx, wallet.private_key)
-            tx_hash = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+            raw_tx = signed_tx.rawTransaction if hasattr(signed_tx, 'rawTransaction') else signed_tx.raw_transaction
+            tx_hash = self.w3.eth.send_raw_transaction(raw_tx)
             
             self.logger.info(f"📤 Burn TX sent: {tx_hash.hex()[:16]}...")
             
@@ -225,7 +237,8 @@ class BethContract:
             
             # Sign and send
             signed_tx = self.w3.eth.account.sign_transaction(mint_tx, wallet.private_key)
-            tx_hash = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+            raw_tx = signed_tx.rawTransaction if hasattr(signed_tx, 'rawTransaction') else signed_tx.raw_transaction
+            tx_hash = self.w3.eth.send_raw_transaction(raw_tx)
             
             self.logger.info(f"📤 Mint TX sent: {tx_hash.hex()[:16]}...")
             
@@ -329,6 +342,23 @@ class WormContract:
             address=Web3.to_checksum_address(BETH_CONTRACT_ADDRESS),
             abi=ERC20_APPROVE_ABI
         )
+    def _get_optimal_gas(self) -> int:
+        """Get optimal gas price for Sepolia with priority buffer.
+        
+        Adds 20% buffer to current gas price to ensure TX gets mined quickly.
+        """
+        base_gas = self.w3.eth.gas_price
+        max_gas_wei = self.w3.to_wei(MAX_GAS_GWEI, 'gwei')
+        
+        if base_gas > max_gas_wei:
+            raise ContractError(
+                f"Gas price too high: {base_gas / 1e9:.1f} Gwei "
+                f"(max: {MAX_GAS_GWEI} Gwei). Try again later."
+            )
+        
+        # Add 20% priority buffer for testnets
+        optimal_gas = int(base_gas * 1.2)
+        return optimal_gas
     
     def check_allowance(self, wallet: WalletConfig) -> int:
         """Check BETH allowance for WORM contract."""
@@ -372,7 +402,8 @@ class WormContract:
             })
             
             signed_tx = self.w3.eth.account.sign_transaction(tx, wallet.private_key)
-            tx_hash = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+            raw_tx = signed_tx.rawTransaction if hasattr(signed_tx, 'rawTransaction') else signed_tx.raw_transaction
+            tx_hash = self.w3.eth.send_raw_transaction(raw_tx)
             
             receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
             
@@ -414,19 +445,26 @@ class WormContract:
                 f"⛏️ Participating: {amount_per_epoch} BETH × {num_epochs} epochs"
             )
             
+            # Estimate gas for this specific call
+            gas_estimate = self.worm_contract.functions.participate(
+                amount_wei,
+                num_epochs
+            ).estimate_gas({'from': account.address})
+            
             tx = self.worm_contract.functions.participate(
                 amount_wei,
                 num_epochs
             ).build_transaction({
                 'from': account.address,
-                'gas': 200000,
-                'gasPrice': self.w3.eth.gas_price,
+                'gas': int(gas_estimate * 1.2),  # 20% buffer
+                'gasPrice': self._get_optimal_gas(),
                 'nonce': self.w3.eth.get_transaction_count(account.address),
                 'chainId': self.w3.eth.chain_id,
             })
             
             signed_tx = self.w3.eth.account.sign_transaction(tx, wallet.private_key)
-            tx_hash = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+            raw_tx = signed_tx.rawTransaction if hasattr(signed_tx, 'rawTransaction') else signed_tx.raw_transaction
+            tx_hash = self.w3.eth.send_raw_transaction(raw_tx)
             
             self.logger.info(f"📤 Participate TX sent: {tx_hash.hex()[:16]}...")
             
@@ -479,7 +517,8 @@ class WormContract:
             })
             
             signed_tx = self.w3.eth.account.sign_transaction(tx, wallet.private_key)
-            tx_hash = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+            raw_tx = signed_tx.rawTransaction if hasattr(signed_tx, 'rawTransaction') else signed_tx.raw_transaction
+            tx_hash = self.w3.eth.send_raw_transaction(raw_tx)
             
             self.logger.info(f"📤 Claim TX sent: {tx_hash.hex()[:16]}...")
             

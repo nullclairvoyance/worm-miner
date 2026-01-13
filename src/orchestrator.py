@@ -154,14 +154,11 @@ class Orchestrator:
         Returns:
             True if burn is needed
         """
-        # Calculate total BETH needed for all planned epochs
-        total_beth_needed = self.config.beth_per_epoch * self.config.total_epochs
-        
-        # Check if we already have enough BETH
-        if state.beth_balance >= total_beth_needed:
+        # Only burn if we don't have enough for 1 epoch
+        # (since we participate 1 epoch at a time)
+        if state.beth_balance >= self.config.beth_per_epoch:
             self.logger.info(
-                f"✓ Sufficient BETH ({state.beth_balance}) for {self.config.total_epochs} epochs. "
-                f"Skipping burn."
+                f"✓ Sufficient BETH ({state.beth_balance}) for mining. Skipping burn."
             )
             return False
         
@@ -175,7 +172,7 @@ class Orchestrator:
             return False
         
         self.logger.info(
-            f"🔥 Need to burn: BETH balance {state.beth_balance} < needed {total_beth_needed}"
+            f"🔥 Need to burn: BETH balance {state.beth_balance} < 1 epoch ({self.config.beth_per_epoch})"
         )
         return True
     
@@ -207,13 +204,12 @@ class Orchestrator:
         # Burn if needed
         if self._should_burn(state):
             self.logger.info(
-                f"📉 BETH balance ({state.beth_balance}) below threshold "
-                f"({self.config.min_beth_threshold})"
+                f"📉 Need more BETH. Burning {self.config.total_eth_budget} ETH..."
             )
             
             result = self.miner.burn(
                 wallet=wallet,
-                amount=self.config.burn_amount,
+                amount=self.config.total_eth_budget,
                 spend=self.config.burn_spend,
                 fee=self.config.burn_fee
             )
@@ -232,15 +228,29 @@ class Orchestrator:
                 return False
         else:
             self.logger.info(
-                f"✓ BETH balance ({state.beth_balance}) above threshold"
+                f"✓ Skipping burn - using existing BETH ({state.beth_balance})"
             )
         
         # Mine (participate in epochs)
+        # Check if we have enough BETH for 1 epoch
+        state = self.state.wallets[wallet.address]
+        
+        if state.beth_balance < self.config.beth_per_epoch:
+            self.logger.warning(
+                f"⚠️ Insufficient BETH ({state.beth_balance}) for 1 epoch "
+                f"(need {self.config.beth_per_epoch})"
+            )
+            return False
+        
+        # Participate in 1 epoch per cycle (not all at once!)
+        self.logger.info(
+            f"📊 BETH: {state.beth_balance} → participating in 1 epoch"
+        )
+        
         result = self.miner.mine(
             wallet=wallet,
-            amount_per_epoch=self.config.amount_per_epoch,
-            num_epochs=self.config.num_epochs,
-            claim_interval=self.config.claim_interval
+            amount_per_epoch=self.config.beth_per_epoch,
+            num_epochs=1,  # ONE epoch per cycle
         )
         
         if result.success:
@@ -302,7 +312,7 @@ class Orchestrator:
         Continues until shutdown signal received.
         """
         self.logger.info("")
-        self.logger.info("🪱 [bold]WORM MULTI-WALLET FARMER by by Nullclairvoyant[/bold]")
+        self.logger.info("🪱 [bold]WORM MULTI-WALLET FARMER by Nullclairvoyant[/bold]")
         self.logger.info("")
         
         # Print config summary

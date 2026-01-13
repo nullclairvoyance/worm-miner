@@ -178,8 +178,8 @@ class RemoteMinerClient:
         start_time = time.time()
         
         # Use config defaults
-        amount = amount_per_epoch or self.config.amount_per_epoch
-        epochs = num_epochs or self.config.num_epochs
+        amount = amount_per_epoch or self.config.beth_per_epoch
+        epochs = num_epochs or self.config.total_epochs
         
         try:
             tx_hash = self.worm_contract.participate(
