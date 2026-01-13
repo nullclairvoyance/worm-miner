@@ -1,0 +1,16 @@
+# WORM Multi-Wallet Farming Script
+# Python 3.9+ required
+# SECURITY: Versions pinned to prevent supply-chain attacks
+
+# Blockchain interaction
+web3==6.15.0
+eth-account==0.11.0
+
+# HTTP client for remote prover
+requests==2.31.0
+
+# Environment configuration
+python-dotenv==1.0.1
+
+# CLI colors and formatting
+rich==13.7.0
