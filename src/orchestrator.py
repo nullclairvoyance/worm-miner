@@ -262,16 +262,22 @@ class Orchestrator:
             # Check if we should claim WORM rewards
             if self.state.total_mines % self.config.claim_interval == 0:
                 self.logger.info(
-                    f"🎁 Claiming WORM (every {self.config.claim_interval} epochs)..."
+                    f"🎁 Claiming WORM (every {self.config.claim_interval} participations)..."
                 )
                 
                 # Get current epoch to calculate claim range
                 try:
                     current_epoch = self.blockchain.get_current_epoch()
                     if current_epoch:
-                        # Claim last N epochs
-                        claim_epochs = min(self.config.claim_interval, current_epoch)
+                        # Claim ALL epochs we've participated in
+                        # Start from epoch 0 (or track last claimed in future)
+                        # For now, claim a large range to get all rewards
+                        claim_epochs = min(100, current_epoch)  # Claim up to 100 epochs
                         starting_epoch = max(0, current_epoch - claim_epochs)
+                        
+                        self.logger.info(
+                            f"📋 Claiming epochs {starting_epoch} to {current_epoch} ({claim_epochs} epochs)"
+                        )
                         
                         claim_result = self.miner.claim(
                             wallet=wallet,
