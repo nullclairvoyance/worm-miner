@@ -1,4 +1,4 @@
-# 🐛 WORM Multi-Wallet Farmer
+# 🪱 WORM Multi-Wallet Farmer
 
 **by [Nullclairvoyant](https://github.com/nullclairvoyance)**
 
