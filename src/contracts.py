@@ -505,13 +505,19 @@ class WormContract:
                 f"🎁 Claiming WORM for epochs {starting_epoch} to {starting_epoch + num_epochs - 1}"
             )
             
+            # Estimate gas for this specific call
+            gas_estimate = self.worm_contract.functions.claim(
+                starting_epoch,
+                num_epochs
+            ).estimate_gas({'from': account.address})
+            
             tx = self.worm_contract.functions.claim(
                 starting_epoch,
                 num_epochs
             ).build_transaction({
                 'from': account.address,
-                'gas': 300000,
-                'gasPrice': self.w3.eth.gas_price,
+                'gas': int(gas_estimate * 1.2),  # 20% buffer
+                'gasPrice': self._get_optimal_gas(),
                 'nonce': self.w3.eth.get_transaction_count(account.address),
                 'chainId': self.w3.eth.chain_id,
             })

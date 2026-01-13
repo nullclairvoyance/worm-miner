@@ -258,6 +258,35 @@ class Orchestrator:
             state.mines_count += 1
             self.state.total_mines += 1
             state.consecutive_failures = 0
+            
+            # Check if we should claim WORM rewards
+            if self.state.total_mines % self.config.claim_interval == 0:
+                self.logger.info(
+                    f"🎁 Claiming WORM (every {self.config.claim_interval} epochs)..."
+                )
+                
+                # Get current epoch to calculate claim range
+                try:
+                    current_epoch = self.blockchain.get_current_epoch()
+                    if current_epoch:
+                        # Claim last N epochs
+                        claim_epochs = min(self.config.claim_interval, current_epoch)
+                        starting_epoch = max(0, current_epoch - claim_epochs)
+                        
+                        claim_result = self.miner.claim(
+                            wallet=wallet,
+                            starting_epoch=starting_epoch,
+                            num_epochs=claim_epochs,
+                        )
+                        
+                        if claim_result.success:
+                            self.logger.info(
+                                f"[success]✓[/success] Claimed WORM for epochs {starting_epoch}-{current_epoch}"
+                            )
+                        else:
+                            self.logger.warning(f"⚠️ Claim failed: {claim_result.error_message}")
+                except Exception as e:
+                    self.logger.warning(f"⚠️ Claim check failed: {e}")
         else:
             state.consecutive_failures += 1
             state.last_error = result.error_message
