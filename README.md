@@ -30,7 +30,17 @@ Automated farming script for [WORM Protocol](https://worm.cx/app/mine) on Sepoli
 ./setup.sh
 ```
 
-Or manually:
+**Windows:**
+```powershell
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+# Edit .env with your settings
+python main.py
+```
+
+**Mac/Linux:**
 ```bash
 python3 -m venv venv
 source venv/bin/activate
