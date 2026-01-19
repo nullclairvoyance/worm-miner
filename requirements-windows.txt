@@ -1,13 +1,11 @@
 # WORM Multi-Wallet Farming Script - Windows Requirements
 # Python 3.9+ required
-# SECURITY: Versions pinned to prevent supply-chain attacks
 #
-# This file is for Windows users to avoid lru-dict build issues.
-# Use with: pip install -r requirements-windows.txt
+# Install with: pip install --only-binary=:all: -r requirements-windows.txt
+# Or run setup-windows.bat for automatic setup
 
-# Blockchain interaction
+# Blockchain interaction (web3 includes eth-account as dependency)
 web3==6.15.0
-eth-account==0.11.0
 
 # HTTP client for remote prover
 requests==2.31.0

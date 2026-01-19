@@ -40,13 +40,13 @@ This script handles everything: virtual env, dependencies, and configuration.
 python -m venv venv
 .\venv\Scripts\activate
 python -m pip install --upgrade pip setuptools wheel
-pip install --only-binary=:all: -r requirements-windows.txt
+pip install --only-binary=:all: web3==6.15.0 eth-account==0.11.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
 copy .env.example .env
 # Edit .env with your settings
 python main.py
 ```
 
-> **Note:** Windows users should use `requirements-windows.txt` to avoid `lru-dict` compilation issues. This file forces binary wheel installation.
+> **Note:** The `--only-binary=:all:` flag prevents `lru-dict` compilation issues on Windows.
 
 ### Mac/Linux
 
@@ -111,15 +111,15 @@ If you encounter issues during setup:
 
 ### `lru-dict` Build Errors
 
-**Solution 1 (Recommended):** Use the Windows-specific requirements file:
+**Solution 1 (Recommended):** Install with binary-only flag:
 ```powershell
-pip install -r requirements-windows.txt
+pip install --only-binary=:all: web3==6.15.0 eth-account==0.11.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
 ```
 
-**Solution 2:** Upgrade pip to ensure wheel support:
+**Solution 2:** Upgrade pip first, then install:
 ```powershell
 python -m pip install --upgrade pip setuptools wheel
-pip install -r requirements-windows.txt
+pip install web3==6.15.0 eth-account==0.11.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
 ```
 
 **Solution 3 (Last Resort):** Install Microsoft C++ Build Tools:

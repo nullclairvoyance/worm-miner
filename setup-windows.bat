@@ -63,9 +63,18 @@ echo [OK] Package managers upgraded
 echo.
 
 REM Install dependencies
-echo [5/6] Installing dependencies (using Windows-optimized requirements)...
+echo [5/6] Installing dependencies...
 echo This may take a few minutes...
-pip install --only-binary=:all: -r requirements-windows.txt
+REM Install web3 first (includes eth-account as dependency)
+echo Installing web3...
+pip install --only-binary=:all: web3==6.15.0
+if errorlevel 1 (
+    echo [WARNING] Binary-only failed, trying standard install...
+    pip install web3==6.15.0
+)
+REM Install remaining packages
+echo Installing other dependencies...
+pip install requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
 if errorlevel 1 (
     echo.
     echo [ERROR] Dependency installation failed!
@@ -73,7 +82,8 @@ if errorlevel 1 (
     echo Troubleshooting:
     echo 1. Ensure you have a stable internet connection
     echo 2. Try running this script as Administrator
-    echo 3. If firewall blocks downloads, whitelist PyPI
+    echo 3. Install Visual C++ Build Tools if needed:
+    echo    https://visualstudio.microsoft.com/visual-cpp-build-tools/
     echo.
     pause
     exit /b 1
