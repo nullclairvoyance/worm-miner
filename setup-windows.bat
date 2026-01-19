@@ -65,23 +65,16 @@ echo.
 REM Install dependencies
 echo [5/6] Installing dependencies...
 echo This may take a few minutes...
-REM Install all packages with binary-only to avoid build issues
-pip install --only-binary=:all: web3==6.15.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
+REM web3 7.x has no lru-dict dependency - no build issues on Windows
+pip install web3==7.14.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
 if errorlevel 1 (
     echo.
-    echo [WARNING] Binary-only install failed. Trying without restriction...
-    echo This may require Visual C++ Build Tools if compilation is needed.
-    pip install web3==6.15.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
-    if errorlevel 1 (
-        echo.
-        echo [ERROR] Dependency installation failed!
-        echo.
-        echo Install Visual C++ Build Tools:
-        echo https://visualstudio.microsoft.com/visual-cpp-build-tools/
-        echo.
-        pause
-        exit /b 1
-    )
+    echo [ERROR] Dependency installation failed!
+    echo.
+    echo Check your internet connection and try again.
+    echo.
+    pause
+    exit /b 1
 )
 echo [OK] Dependencies installed
 echo.

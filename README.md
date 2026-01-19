@@ -39,14 +39,11 @@ This script handles everything: virtual env, dependencies, and configuration.
 ```powershell
 python -m venv venv
 .\venv\Scripts\activate
-python -m pip install --upgrade pip setuptools wheel
-pip install --only-binary=:all: web3==6.15.0 eth-account==0.11.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
+pip install web3==7.14.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
 copy .env.example .env
 # Edit .env with your settings
 python main.py
 ```
-
-> **Note:** The `--only-binary=:all:` flag prevents `lru-dict` compilation issues on Windows.
 
 ### Mac/Linux
 
@@ -118,23 +115,16 @@ python main.py --debug      # Debug logging
 
 If you encounter issues during setup:
 
-### `lru-dict` Build Errors
+### Dependency Installation Issues
 
-**Solution 1 (Recommended):** Install with binary-only flag:
+**Solution:** Re-run setup with fresh environment:
 ```powershell
-pip install --only-binary=:all: web3==6.15.0 eth-account==0.11.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
+# Delete old venv and start fresh
+rmdir /s /q venv
+setup-windows.bat
 ```
 
-**Solution 2:** Upgrade pip first, then install:
-```powershell
-python -m pip install --upgrade pip setuptools wheel
-pip install web3==6.15.0 eth-account==0.11.0 requests==2.31.0 python-dotenv==1.0.1 rich==13.7.0
-```
-
-**Solution 3 (Last Resort):** Install Microsoft C++ Build Tools:
-1. Download: [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-2. Install "Desktop development with C++"
-3. Restart terminal and retry setup
+> **Note:** We use `web3==7.14.0` which has no C++ build requirements.
 
 ### Permission Errors
 
