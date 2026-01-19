@@ -26,21 +26,36 @@ Automated farming script for [WORM Protocol](https://worm.cx/app/mine) on Sepoli
 
 ## Quick Start
 
-```bash
-./setup.sh
+### Windows (Recommended)
+
+**One-click setup:**
+```powershell
+setup-windows.bat
 ```
 
-**Windows:**
+This script handles everything: virtual env, dependencies, and configuration.
+
+**Manual setup (if needed):**
 ```powershell
 python -m venv venv
 .\venv\Scripts\activate
-pip install -r requirements.txt
+python -m pip install --upgrade pip setuptools wheel
+pip install -r requirements-windows.txt
 copy .env.example .env
 # Edit .env with your settings
 python main.py
 ```
 
-**Mac/Linux:**
+> **Note:** Windows users should use `requirements-windows.txt` to avoid `lru-dict` compilation issues. This file forces binary wheel installation.
+
+### Mac/Linux
+
+**Automated setup:**
+```bash
+./setup.sh
+```
+
+**Manual setup:**
 ```bash
 python3 -m venv venv
 source venv/bin/activate
@@ -89,6 +104,49 @@ python main.py              # Start farming
 python main.py --dry-run    # Validate config + show balances
 python main.py --debug      # Debug logging
 ```
+
+## Windows Troubleshooting
+
+If you encounter issues during setup:
+
+### `lru-dict` Build Errors
+
+**Solution 1 (Recommended):** Use the Windows-specific requirements file:
+```powershell
+pip install -r requirements-windows.txt
+```
+
+**Solution 2:** Upgrade pip to ensure wheel support:
+```powershell
+python -m pip install --upgrade pip setuptools wheel
+pip install -r requirements-windows.txt
+```
+
+**Solution 3 (Last Resort):** Install Microsoft C++ Build Tools:
+1. Download: [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+2. Install "Desktop development with C++"
+3. Restart terminal and retry setup
+
+### Permission Errors
+
+Run PowerShell as Administrator:
+```powershell
+Right-click PowerShell → "Run as Administrator"
+```
+
+### Script Execution Policy Errors
+
+Enable script execution:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### Network/Firewall Issues
+
+If pip can't download packages:
+1. Check internet connection
+2. Whitelist PyPI in firewall: `https://pypi.org`, `https://files.pythonhosted.org`
+3. Try using a VPN or different network
 
 ## Security
 
