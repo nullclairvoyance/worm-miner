@@ -99,6 +99,15 @@ PROVER_URL=https://worm-miner-3.darkube.app
 
 ## Commands
 
+**Windows:**
+```powershell
+start.bat                   # Start farming (recommended)
+python main.py              # Start farming (manual)
+python main.py --dry-run    # Validate config + show balances
+python main.py --debug      # Debug logging
+```
+
+**Mac/Linux:**
 ```bash
 python main.py              # Start farming
 python main.py --dry-run    # Validate config + show balances
