@@ -4,7 +4,7 @@
 # Install with: pip install --only-binary=:all: -r requirements-windows.txt
 # Or run setup-windows.bat for automatic setup
 
-# Blockchain interaction (web3 includes eth-account as dependency)
+# Blockchain interaction (web3 pulls compatible eth-account)
 web3==6.15.0
 
 # HTTP client for remote prover
