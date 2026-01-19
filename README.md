@@ -40,7 +40,7 @@ This script handles everything: virtual env, dependencies, and configuration.
 python -m venv venv
 .\venv\Scripts\activate
 python -m pip install --upgrade pip setuptools wheel
-pip install -r requirements-windows.txt
+pip install --only-binary=:all: -r requirements-windows.txt
 copy .env.example .env
 # Edit .env with your settings
 python main.py

@@ -65,7 +65,7 @@ echo.
 REM Install dependencies
 echo [5/6] Installing dependencies (using Windows-optimized requirements)...
 echo This may take a few minutes...
-pip install -r requirements-windows.txt
+pip install --only-binary=:all: -r requirements-windows.txt
 if errorlevel 1 (
     echo.
     echo [ERROR] Dependency installation failed!
